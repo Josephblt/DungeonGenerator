@@ -11,8 +11,8 @@
 
         public bool CreateStart { get; set; }
         public bool CreateFinish { get; set; }
-        public Cell Start { get; set; }
-        public Cell Finish { get; set; }
+        public CellLocation Start { get; set; }
+        public CellLocation Finish { get; set; }
 
         public int RoomDensity { get; set; }
         public int RoomDistance { get; set; }

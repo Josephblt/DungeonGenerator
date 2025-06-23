@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DungeonGenerator.Base.Creators
 {
-    public partial class DefaultCreator
+    public partial class AlchromistCreator
     {
         #region Private Fields
 
@@ -43,7 +43,7 @@ namespace DungeonGenerator.Base.Creators
                     yield return nextCell;
             }
         }
-        
+
         private CellLocation FindNextCell(Dungeon dungeon, CellLocation currentCell, CellLocation lastCell)
         {
             IEnumerable<CellLocation> availableCells = FindAvailableCells(dungeon, currentCell);
@@ -84,16 +84,7 @@ namespace DungeonGenerator.Base.Creators
             return (cellOne.X == cellTwo.X) || (cellOne.Y == cellTwo.Y);
         }
 
-        #endregion
-
-        #region Protected Methods
-
-        protected void InitializePathCreator()
-        {
-            _pathRandomizer = new Random(Seed);
-        }
-
-        protected void ProcessPath(Dungeon dungeon)
+        private void CreateChamberPath(Dungeon dungeon)
         {
             CellLocation currentCell = new CellLocation(0, 0);
             CellLocation nextCell = null;
@@ -121,6 +112,113 @@ namespace DungeonGenerator.Base.Creators
                     }
                 }
             }
+        }
+
+        private void CreateTier1Path(Dungeon dungeon)
+        {
+            CellLocation currentCell = tier1MazeStart;
+            CellLocation nextCell = null;
+            CellLocation lastCell = null;
+
+            Queue<CellLocation> queue = new Queue<CellLocation>();
+            queue.Enqueue(currentCell);
+
+            while (queue.Count > 0)
+            {
+                nextCell = FindNextCell(dungeon, currentCell, lastCell);
+                if (nextCell != null)
+                {
+                    OpenPath(dungeon, currentCell, nextCell);
+                    queue.Enqueue(nextCell);
+                    lastCell = currentCell;
+                    currentCell = nextCell;
+                }
+                else
+                {
+                    if (queue.Count > 0)
+                    {
+                        lastCell = null;
+                        currentCell = queue.Dequeue();
+                    }
+                }
+            }
+        }
+
+        private void CreateTier2Path(Dungeon dungeon)
+        {
+            CellLocation currentCell = tier2MazeStart;
+            CellLocation nextCell = null;
+            CellLocation lastCell = null;
+
+            Queue<CellLocation> queue = new Queue<CellLocation>();
+            queue.Enqueue(currentCell);
+
+            while (queue.Count > 0)
+            {
+                nextCell = FindNextCell(dungeon, currentCell, lastCell);
+                if (nextCell != null)
+                {
+                    OpenPath(dungeon, currentCell, nextCell);
+                    queue.Enqueue(nextCell);
+                    lastCell = currentCell;
+                    currentCell = nextCell;
+                }
+                else
+                {
+                    if (queue.Count > 0)
+                    {
+                        lastCell = null;
+                        currentCell = queue.Dequeue();
+                    }
+                }
+            }
+        }
+
+        private void CreateTier3Path(Dungeon dungeon)
+        {
+            CellLocation currentCell = tier3MazeStart;
+            CellLocation nextCell = null;
+            CellLocation lastCell = null;
+
+            Queue<CellLocation> queue = new Queue<CellLocation>();
+            queue.Enqueue(currentCell);
+
+            while (queue.Count > 0)
+            {
+                nextCell = FindNextCell(dungeon, currentCell, lastCell);
+                if (nextCell != null)
+                {
+                    OpenPath(dungeon, currentCell, nextCell);
+                    queue.Enqueue(nextCell);
+                    lastCell = currentCell;
+                    currentCell = nextCell;
+                }
+                else
+                {
+                    if (queue.Count > 0)
+                    {
+                        lastCell = null;
+                        currentCell = queue.Dequeue();
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected void InitializePathCreator()
+        {
+            _pathRandomizer = new Random(Seed);
+        }
+
+        protected void ProcessPath(Dungeon dungeon)
+        {
+            CreateChamberPath(dungeon);
+            CreateTier1Path(dungeon);
+            CreateTier2Path(dungeon);
+            CreateTier3Path(dungeon);
         }
 
         #endregion

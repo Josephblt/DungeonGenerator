@@ -15,54 +15,54 @@ namespace DungeonGenerator.Base.Creators
 
         private void DefineStart(Dungeon dungeon, int direction)
         {
-            Cell startCellLocation = null;
+            CellLocation startCellLocation = null;
             switch (direction)
             {
                 case 0:
-                    startCellLocation = new Cell(_startFinishRandomizer.Next(0, dungeon.Width), 0);
-                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.Top);
+                    startCellLocation = new CellLocation(_startFinishRandomizer.Next(0, dungeon.Width), 0);
+                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.TOP);
                     break;
                 case 1:
-                    startCellLocation = new Cell(_startFinishRandomizer.Next(0, dungeon.Width), dungeon.Height - 1);
-                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.Bottom);
+                    startCellLocation = new CellLocation(_startFinishRandomizer.Next(0, dungeon.Width), dungeon.Height - 1);
+                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.BOTTOM);
                     break;
                 case 2:
-                    startCellLocation = new Cell(0, _startFinishRandomizer.Next(0, dungeon.Height));
-                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.Left);
+                    startCellLocation = new CellLocation(0, _startFinishRandomizer.Next(0, dungeon.Height));
+                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.LEFT);
                     break;
                 case 3:
-                    startCellLocation = new Cell(dungeon.Width - 1, _startFinishRandomizer.Next(0, dungeon.Height));
-                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.Right);
+                    startCellLocation = new CellLocation(dungeon.Width - 1, _startFinishRandomizer.Next(0, dungeon.Height));
+                    dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.RIGHT);
                     break;
             }
 
-            dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.Start);
+            dungeon.SetFlag(startCellLocation, Dungeon.DungeonFlags.START);
         }
 
         private void DefineFinish(Dungeon dungeon, int direction)
         {
-            Cell finishCellLocation = null;
+            CellLocation finishCellLocation = null;
             switch (direction)
             {
                 case 0:
-                    finishCellLocation = new Cell(_startFinishRandomizer.Next(0, dungeon.Width), 0);
-                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.Top);
+                    finishCellLocation = new CellLocation(_startFinishRandomizer.Next(0, dungeon.Width), 0);
+                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.TOP);
                     break;
                 case 1:
-                    finishCellLocation = new Cell(_startFinishRandomizer.Next(0, dungeon.Width), dungeon.Height - 1);
-                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.Bottom);
+                    finishCellLocation = new CellLocation(_startFinishRandomizer.Next(0, dungeon.Width), dungeon.Height - 1);
+                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.BOTTOM);
                     break;
                 case 2:
-                    finishCellLocation = new Cell(0, _startFinishRandomizer.Next(0, dungeon.Height));
-                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.Left);
+                    finishCellLocation = new CellLocation(0, _startFinishRandomizer.Next(0, dungeon.Height));
+                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.LEFT);
                     break;
                 case 3:
-                    finishCellLocation = new Cell(dungeon.Width - 1, _startFinishRandomizer.Next(0, dungeon.Height));
-                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.Right);
+                    finishCellLocation = new CellLocation(dungeon.Width - 1, _startFinishRandomizer.Next(0, dungeon.Height));
+                    dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.RIGHT);
                     break;
             }
 
-            dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.Finish);
+            dungeon.SetFlag(finishCellLocation, Dungeon.DungeonFlags.FINISH);
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace DungeonGenerator.Base.Creators
             else
             {
                 if (Start != null)
-                    dungeon.SetFlag(Start, Dungeon.DungeonFlags.Start);
+                    dungeon.SetFlag(Start, Dungeon.DungeonFlags.START);
             }
 
             if (CreateFinish)
@@ -98,7 +98,7 @@ namespace DungeonGenerator.Base.Creators
             else
             {
                 if (Finish != null)
-                    dungeon.SetFlag(Finish, Dungeon.DungeonFlags.Finish);
+                    dungeon.SetFlag(Finish, Dungeon.DungeonFlags.FINISH);
             }
         }
 

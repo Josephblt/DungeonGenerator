@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DungeonGenerator.Base.Creators
 {
-    public partial class DefaultCreator
+    public partial class AlchromistCreator
     {
         #region Private Fields
 
@@ -37,7 +37,7 @@ namespace DungeonGenerator.Base.Creators
                 for (int y = room.Top; y <= room.Bottom; y++)
                 {
                     var currentCell = new CellLocation(x, y);
-                    dungeon.ClearFlag(currentCell, (Dungeon.DungeonFlags.TOP | Dungeon.DungeonFlags.BOTTOM | Dungeon.DungeonFlags.LEFT | Dungeon.DungeonFlags.RIGHT) );
+                    dungeon.ClearFlag(currentCell, (Dungeon.DungeonFlags.TOP | Dungeon.DungeonFlags.BOTTOM | Dungeon.DungeonFlags.LEFT | Dungeon.DungeonFlags.RIGHT));
                 }
         }
 
@@ -66,7 +66,7 @@ namespace DungeonGenerator.Base.Creators
                         dungeon.SetFlag(bottomCell, Dungeon.DungeonFlags.ROOM);
                     }
                 }
-        }        
+        }
 
         private void CreateConnections(Dungeon dungeon, Room room)
         {
@@ -77,11 +77,11 @@ namespace DungeonGenerator.Base.Creators
                 var index = _roomRandomizer.Next(0, availableBorderCells.Count);
                 var connectionLocation = availableBorderCells[index];
                 availableBorderCells.Remove(connectionLocation);
-                CreateConnection(dungeon, room, connectionLocation);
+                CreateConnection(dungeon, connectionLocation);
             }
         }
 
-        private void CreateConnection(Dungeon dungeon, Room room, CellLocation connectionLocation)
+        private void CreateConnection(Dungeon dungeon, CellLocation connectionLocation)
         {
             List<CellLocation> neighboursCells = new List<CellLocation>();
 
@@ -135,14 +135,14 @@ namespace DungeonGenerator.Base.Creators
 
         protected void ProcessRoom(Dungeon dungeon)
         {
-            List<Room> createdRooms = new List<Room>();
-
-            for (int densityCounter = 0; densityCounter < RoomDensity; densityCounter++)
+            for (int roomCounter = 0; roomCounter < RoomQuantity; roomCounter++)
             {
                 var room = CreateRoom(dungeon);
-                if (room == null) continue;
-                if (room.ContainsStartFinish(dungeon)) continue;
-                if (room.Overlaps(createdRooms, RoomDistance)) continue;
+                if (room.Overlaps(createdRooms, RoomDistance))
+                {
+                    roomCounter--;
+                    continue;
+                }
 
                 createdRooms.Add(room);
                 ResetWalls(dungeon, room);

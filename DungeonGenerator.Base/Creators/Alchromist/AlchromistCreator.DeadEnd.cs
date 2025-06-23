@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DungeonGenerator.Base.Creators
 {
-    public partial class DefaultCreator
+    public partial class AlchromistCreator
     {
         #region Private Fields
 
@@ -12,7 +12,7 @@ namespace DungeonGenerator.Base.Creators
         #endregion
 
         #region Private Methods
-        
+
         private void ConnectDeadEnds(Dungeon dungeon, Queue<CellLocation> connectionQueue)
         {
             if (connectionQueue.Count == 0) return;
@@ -88,9 +88,9 @@ namespace DungeonGenerator.Base.Creators
             List<CellLocation> paths = new List<CellLocation>();
 
             if ((topCell != null) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.TOP) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(topCell);
-            if ((bottomCell != null)  && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.BOTTOM) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(bottomCell);
-            if ((leftCell != null)  && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.LEFT) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(leftCell);
-            if ((rightCell != null)  && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.RIGHT) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(rightCell);
+            if ((bottomCell != null) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.BOTTOM) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(bottomCell);
+            if ((leftCell != null) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.LEFT) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(leftCell);
+            if ((rightCell != null) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.RIGHT) && dungeon[deadEndLocation].HasFlag(Dungeon.DungeonFlags.PATH)) paths.Add(rightCell);
 
             if (paths.Count == 0)
                 return null;
@@ -104,6 +104,9 @@ namespace DungeonGenerator.Base.Creators
         private bool IsDeadEnd(Dungeon.DungeonFlags cellFlags)
         {
             if (!cellFlags.HasFlag(Dungeon.DungeonFlags.PATH)) return false;
+            if (cellFlags.HasFlag(Dungeon.DungeonFlags.TIER1ROOM)) return false;
+            if (cellFlags.HasFlag(Dungeon.DungeonFlags.TIER2ROOM)) return false;
+            if (cellFlags.HasFlag(Dungeon.DungeonFlags.TIER3ROOM)) return false;
 
             int wallCount = 0;
 
@@ -267,6 +270,15 @@ namespace DungeonGenerator.Base.Creators
             return topClear && bottomClear;
         }
 
+        void Shuffle<CellLocation>(List<CellLocation> list)
+        {
+            Random rng = new Random();
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+        }
 
         private void InitializeDeadEndCreator()
         {
@@ -275,18 +287,33 @@ namespace DungeonGenerator.Base.Creators
 
         private void ProcessDeadEnd(Dungeon dungeon)
         {
-            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
-            Queue<CellLocation> fillQueue = new Queue<CellLocation>();
+            List<CellLocation> deadEndList = new List<CellLocation>();
 
             for (int x = 0; x < dungeon.Width; x++)
                 for (int y = 0; y < dungeon.Height; y++)
                     if (IsDeadEnd(dungeon[x, y]))
                     {
-                        if (_deadEndRandomizer.Next(0, 100) < DeadEndBias)
-                            connectionQueue.Enqueue(new CellLocation(x, y));
-                        else
-                            fillQueue.Enqueue(new CellLocation(x, y));
+                        deadEndList.Add(new CellLocation(x, y));
                     }
+
+            Shuffle(deadEndList);
+
+            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
+            Queue<CellLocation> fillQueue = new Queue<CellLocation>();
+            for (int i = 0; i < deadEndList.Count; i++)
+            {
+                if (i < DeadEndQuantity)
+                {
+                    dungeon.SetFlag(deadEndList[i], Dungeon.DungeonFlags.DEADEND);
+                }
+                else
+                { 
+                    if (_deadEndRandomizer.Next(0, 100) < DeadEndBias)
+                        connectionQueue.Enqueue(deadEndList[i]);
+                    else
+                        fillQueue.Enqueue(deadEndList[i]);
+                }
+            }
 
             ConnectDeadEnds(dungeon, connectionQueue);
             FillDeadEnds(dungeon, fillQueue);
