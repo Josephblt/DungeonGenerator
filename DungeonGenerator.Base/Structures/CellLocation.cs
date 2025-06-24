@@ -1,10 +1,10 @@
 ﻿namespace DungeonGenerator.Base
 {
-    public class Cell
+    public class CellLocation
     {
         #region Constructor
 
-        public Cell(int x, int y)
+        public CellLocation(int x, int y)
         {
             X = x;
             Y = y;

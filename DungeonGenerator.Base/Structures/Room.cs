@@ -84,7 +84,7 @@ namespace DungeonGenerator.Base
         {
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    if (dungeon[x, y].HasFlag(Dungeon.DungeonFlags.Start) || dungeon[x, y].HasFlag(Dungeon.DungeonFlags.Finish))
+                    if (dungeon[x, y].HasFlag(Dungeon.DungeonFlags.START) || dungeon[x, y].HasFlag(Dungeon.DungeonFlags.FINISH))
                         return true;
             return false;
         }

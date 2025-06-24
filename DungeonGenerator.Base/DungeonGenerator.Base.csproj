@@ -34,7 +34,17 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Structures\Cell.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Chamber.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.DeadEnd.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Path.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Tier3Room.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Tier2Room.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Tier1Room.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Room.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.Settings.cs" />
+    <Compile Include="Creators\Alchromist\AlchromistCreator.StartFinish.cs" />
+    <Compile Include="Structures\CellLocation.cs" />
     <Compile Include="Creators\Default\DefaultCreator.DeadEnd.cs" />
     <Compile Include="Creators\Default\DefaultCreator.Settings.cs" />
     <Compile Include="Creators\Default\DefaultCreator.cs" />
@@ -45,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures\Room.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
