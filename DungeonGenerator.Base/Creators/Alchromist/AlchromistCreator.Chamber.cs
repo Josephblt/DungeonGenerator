@@ -8,9 +8,6 @@ namespace DungeonGenerator.Base.Creators
         
         private void ProcessChamber(Dungeon dungeon, Chambers chamber)
         {
-            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
-            Queue<CellLocation> fillQueue = new Queue<CellLocation>();
-
             for (int x = 0; x < dungeon.Width; x++)
                 for (int y = 0; y < dungeon.Height; y++)
                     switch (chamber)
