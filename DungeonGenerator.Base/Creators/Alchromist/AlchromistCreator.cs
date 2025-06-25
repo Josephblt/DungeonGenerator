@@ -6,39 +6,74 @@ namespace DungeonGenerator.Base.Creators
     {
         #region Constructor
 
-        private AlchromistCreator()
+        public AlchromistCreator()
         {
-            Seed = 12072017;
-            Chamber = Chambers.GREEN;
+            Seed = 0;
+            Chamber = Chambers.RED;
 
-            Size = 95;
+            TiersOutterMargin = 11;
+            TiersInnerMargin = 3;
 
-            Tier1RoomSize = 35;
-            Tier1MazeMargin = 2;
+            Tier1CenterSize = 9;
             Tier1MazeSize = 7;
             
-            Tier2RoomSize = 25;
-            Tier2MazeMargin = 2;
+            Tier2CenterSize = 7;
             Tier2MazeSize = 5;
             
-            Tier3RoomSize = 15;
-            Tier3MazeMargin = 2;
+            Tier3CenterSize = 5;
             Tier3MazeSize = 3;
 
             RoomQuantity = 10;
             RoomDistance = 5;
             RoomMinSize = 2;
-            RoomMaxSize = 5;
-            RoomConnections = 1;
+            RoomMaxSize = 7;
+            RoomConnections = 2;
 
             CorridorBias = 70;
 
             DeadEndQuantity = 20;
-            DeadEndBias = 25;
+            DeadEndBias = 10;
+        }
 
-            InitializeRoomCreator();
-            InitializePathCreator();
-            InitializeDeadEndCreator();
+        #endregion
+
+        #region Attributes and Properties
+
+        public string Stats
+        {
+            get
+            {
+                return $"Chamber Color: {Chamber} \n" +
+                       $"Seed: {Seed} \n" +
+                       $"Size: {Size} \n" +
+                       "\n" +
+                       $"Tiers Inner Margin: {TiersInnerMargin} \n" +
+                       $"Tiers Outter Margin: {TiersOutterMargin} \n" +
+                       "\n" +
+                       $"Tier 1 Room Size: {Tier1RoomSize} \n" +
+                       $"Tier 1 Room Center Size: {Tier1CenterSize} \n" +
+                       $"Tier 1 Maze Size: {Tier1MazeSize} \n" +
+                       "\n" +
+                       $"Tier 2 Room Size: {Tier2RoomSize} \n" +
+                       $"Tier 2 Room Center Size: {Tier2CenterSize} \n" +
+                       $"Tier 2 Maze Size: {Tier2MazeSize} \n" +
+                       "\n" +
+                       $"Tier 3 Room Size: {Tier3RoomSize} \n" +
+                       $"Tier 3 Room Center Size: {Tier3CenterSize} \n" +
+                       $"Tier 3 Maze Size: {Tier3MazeSize} \n" +
+                       "\n" +
+                       $"Room Quantity: {RoomQuantity} \n" +
+                       $"Real Room Quantity: {RoomQuantity} \n" +
+                       $"Room Distance: {RoomDistance} \n" +
+                       $"Room Min Size: {RoomMinSize} \n" +
+                       $"Room Max Size: {RoomMaxSize} \n" +
+                       $"Room Connections: {RoomConnections} \n" +
+                       "\n" +
+                       $"Corridor Bias: {CorridorBias} \n" +
+                       "\n" +
+                       $"Dead End Quantity: {DeadEndQuantity} \n" +
+                       $"Dead End Bias: {DeadEndBias}";
+            }
         }
 
         #endregion
@@ -53,6 +88,14 @@ namespace DungeonGenerator.Base.Creators
         #endregion
 
         #region Private Methods
+
+        private void InitializeCreator()
+        {
+            createdRooms = new List<Room>();
+            tier1MazeStart = null;
+            tier2MazeStart = null;
+            tier3MazeStart = null;
+        }
 
         private CellLocation FindTopCell(CellLocation cellLocation)
         {
@@ -90,19 +133,20 @@ namespace DungeonGenerator.Base.Creators
 
         #region Public Methods
 
-        public static Dungeon Create()
+        public Dungeon Create()
         {
-            var creator = new AlchromistCreator();
-            var dungeon = new Dungeon(creator.Size, creator.Size);
+            InitializeCreator();
 
-            creator.ProcessChamber(dungeon, creator.Chamber);
-            creator.ProcessEntrance(dungeon);
-            creator.ProcessTier1Room(dungeon);
-            creator.ProcessTier2Room(dungeon);
-            creator.ProcessTier3Room(dungeon);
-            creator.ProcessRoom(dungeon);
-            creator.ProcessPath(dungeon);
-            creator.ProcessDeadEnd(dungeon);
+            var dungeon = new Dungeon(Size, Size);
+
+            ProcessChamber(dungeon, Chamber);
+            ProcessEntrance(dungeon);
+            ProcessTier1Room(dungeon);
+            ProcessTier2Room(dungeon);
+            ProcessTier3Room(dungeon);
+            ProcessRooms(dungeon);
+            ProcessPaths(dungeon);
+            ProcessDeadEnds(dungeon);
 
             return dungeon;
         }
