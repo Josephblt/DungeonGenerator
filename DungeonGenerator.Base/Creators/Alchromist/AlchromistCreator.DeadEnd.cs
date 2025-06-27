@@ -75,7 +75,7 @@ namespace DungeonGenerator.Base.Creators
             if (availableConnections.Count == 0)
                 return null;
 
-            return availableConnections[_pathRandomizer.Next(0, availableConnections.Count)];
+            return availableConnections[_deadEndRandomizer.Next(0, availableConnections.Count)];
         }
 
         private CellLocation FindFillPath(Dungeon dungeon, CellLocation deadEndLocation)
@@ -115,6 +115,48 @@ namespace DungeonGenerator.Base.Creators
             if (!cellFlags.HasFlag(Dungeon.DungeonFlags.LEFT)) wallCount++;
             if (!cellFlags.HasFlag(Dungeon.DungeonFlags.RIGHT)) wallCount++;
 
+            return wallCount == 3;
+        }
+
+        private bool IsTier1RoomDeadEnd(Dungeon.DungeonFlags cellFlags)
+        {
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.PATH)) return false;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TIER1ROOM)) return false;
+
+            int wallCount = 0;
+
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TOP)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.BOTTOM)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.LEFT)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.RIGHT)) wallCount++;
+            return wallCount == 3;
+        }
+
+        private bool IsTier2RoomDeadEnd(Dungeon.DungeonFlags cellFlags)
+        {
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.PATH)) return false;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TIER2ROOM)) return false;
+
+            int wallCount = 0;
+
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TOP)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.BOTTOM)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.LEFT)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.RIGHT)) wallCount++;
+            return wallCount == 3;
+        }
+
+        private bool IsTier3RoomDeadEnd(Dungeon.DungeonFlags cellFlags)
+        {
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.PATH)) return false;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TIER3ROOM)) return false;
+
+            int wallCount = 0;
+
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.TOP)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.BOTTOM)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.LEFT)) wallCount++;
+            if (!cellFlags.HasFlag(Dungeon.DungeonFlags.RIGHT)) wallCount++;
             return wallCount == 3;
         }
 
@@ -270,23 +312,18 @@ namespace DungeonGenerator.Base.Creators
             return topClear && bottomClear;
         }
 
-        void Shuffle<CellLocation>(List<CellLocation> list)
+        private void Shuffle<CellLocation>(List<CellLocation> list)
         {
-            Random rng = new Random();
             for (int i = list.Count - 1; i > 0; i--)
             {
-                int j = rng.Next(i + 1);
+                int j = _deadEndRandomizer.Next(i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
 
-        private void InitializeDeadEndCreator()
+        private void ProcessChamberDeadEnds(Dungeon dungeon)
         {
-            _deadEndRandomizer = new Random(Seed);
-        }
-
-        private void ProcessDeadEnd(Dungeon dungeon)
-        {
+            _deadEndRandomizer = new Random(Seed + (int)Chamber);
             List<CellLocation> deadEndList = new List<CellLocation>();
 
             for (int x = 0; x < dungeon.Width; x++)
@@ -307,7 +344,7 @@ namespace DungeonGenerator.Base.Creators
                     dungeon.SetFlag(deadEndList[i], Dungeon.DungeonFlags.DEADEND);
                 }
                 else
-                { 
+                {
                     if (_deadEndRandomizer.Next(0, 100) < DeadEndBias)
                         connectionQueue.Enqueue(deadEndList[i]);
                     else
@@ -317,6 +354,60 @@ namespace DungeonGenerator.Base.Creators
 
             ConnectDeadEnds(dungeon, connectionQueue);
             FillDeadEnds(dungeon, fillQueue);
+        }
+
+        private void ProcessTier1RoomDeadEnds(Dungeon dungeon)
+        {
+            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
+
+            for (int x = 0; x < dungeon.Width; x++)
+                for (int y = 0; y < dungeon.Height; y++)
+                    if (IsTier1RoomDeadEnd(dungeon[x, y]))
+                    {
+                        connectionQueue.Enqueue(new CellLocation(x, y));
+                    }
+
+            ConnectDeadEnds(dungeon, connectionQueue);
+        }
+
+        private void ProcessTier2RoomDeadEnds(Dungeon dungeon)
+        {
+            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
+
+            for (int x = 0; x < dungeon.Width; x++)
+                for (int y = 0; y < dungeon.Height; y++)
+                    if (IsTier2RoomDeadEnd(dungeon[x, y]))
+                    {
+                        connectionQueue.Enqueue(new CellLocation(x, y));
+                    }
+
+            ConnectDeadEnds(dungeon, connectionQueue);
+        }
+
+        private void ProcessTier3RoomDeadEnds(Dungeon dungeon)
+        {
+            Queue<CellLocation> connectionQueue = new Queue<CellLocation>();
+
+            for (int x = 0; x < dungeon.Width; x++)
+                for (int y = 0; y < dungeon.Height; y++)
+                    if (IsTier3RoomDeadEnd(dungeon[x, y]))
+                    {
+                        connectionQueue.Enqueue(new CellLocation(x, y));
+                    }
+
+            ConnectDeadEnds(dungeon, connectionQueue);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        protected void ProcessDeadEnds(Dungeon dungeon)
+        {
+            ProcessChamberDeadEnds(dungeon);
+            ProcessTier1RoomDeadEnds(dungeon);
+            ProcessTier2RoomDeadEnds(dungeon);
+            ProcessTier3RoomDeadEnds(dungeon);
         }
 
         #endregion
