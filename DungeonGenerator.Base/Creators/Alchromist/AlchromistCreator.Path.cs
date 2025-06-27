@@ -89,6 +89,7 @@ namespace DungeonGenerator.Base.Creators
             CellLocation currentCell = new CellLocation(0, 0);
             CellLocation nextCell = null;
             CellLocation lastCell = null;
+            _pathRandomizer = new Random(Seed + (int)Chamber);
 
             Queue<CellLocation> queue = new Queue<CellLocation>();
             queue.Enqueue(currentCell);
@@ -119,6 +120,7 @@ namespace DungeonGenerator.Base.Creators
             CellLocation currentCell = tier1MazeStart;
             CellLocation nextCell = null;
             CellLocation lastCell = null;
+            _pathRandomizer = new Random(Seed + (int)Chamber);
 
             Queue<CellLocation> queue = new Queue<CellLocation>();
             queue.Enqueue(currentCell);
@@ -149,6 +151,7 @@ namespace DungeonGenerator.Base.Creators
             CellLocation currentCell = tier2MazeStart;
             CellLocation nextCell = null;
             CellLocation lastCell = null;
+            _pathRandomizer = new Random(Seed + (int)Chamber);
 
             Queue<CellLocation> queue = new Queue<CellLocation>();
             queue.Enqueue(currentCell);
@@ -179,6 +182,7 @@ namespace DungeonGenerator.Base.Creators
             CellLocation currentCell = tier3MazeStart;
             CellLocation nextCell = null;
             CellLocation lastCell = null;
+            _pathRandomizer = new Random(Seed + (int)Chamber);
 
             Queue<CellLocation> queue = new Queue<CellLocation>();
             queue.Enqueue(currentCell);
@@ -208,12 +212,7 @@ namespace DungeonGenerator.Base.Creators
 
         #region Protected Methods
 
-        protected void InitializePathCreator()
-        {
-            _pathRandomizer = new Random(Seed);
-        }
-
-        protected void ProcessPath(Dungeon dungeon)
+        protected void ProcessPaths(Dungeon dungeon)
         {
             CreateChamberPath(dungeon);
             CreateTier1Path(dungeon);
