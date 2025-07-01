@@ -70,6 +70,7 @@ namespace DungeonGenerator.Base.Creators
 
         private void CreateConnections(Dungeon dungeon, Room room)
         {
+            _roomRandomizer = new Random(Seed + (int)Chamber);
             var availableBorderCells = FindBorderCells(dungeon, room);
 
             for (int connectionsCounter = 0; connectionsCounter < RoomConnections; connectionsCounter++)
@@ -128,13 +129,9 @@ namespace DungeonGenerator.Base.Creators
 
         #region Protected Methods
 
-        protected void InitializeRoomCreator()
+        protected void ProcessRooms(Dungeon dungeon)
         {
-            _roomRandomizer = new Random(Seed);
-        }
-
-        protected void ProcessRoom(Dungeon dungeon)
-        {
+            _roomRandomizer = new Random(Seed + (int)Chamber);
             for (int roomCounter = 0; roomCounter < RoomQuantity; roomCounter++)
             {
                 var room = CreateRoom(dungeon);
@@ -147,7 +144,16 @@ namespace DungeonGenerator.Base.Creators
                 createdRooms.Add(room);
                 ResetWalls(dungeon, room);
                 RemoveWalls(dungeon, room);
-                CreateConnections(dungeon, room);
+            }
+
+            for (int roomCounter = 0; roomCounter < createdRooms.Count; roomCounter++)
+            {
+                var room = createdRooms[roomCounter];
+                _roomRandomizer = new Random(Seed + (int)Chamber + roomCounter);
+                if (room.RoomFlag == Room.RoomFlags.NONE)
+                {
+                    CreateConnections(dungeon, room);
+                }
             }
         }
 
