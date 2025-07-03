@@ -1,18 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using static DungeonGenerator.Base.Dungeon;
 
 namespace DungeonGenerator.Base
 {
     public class Room
     {
+        #region Enum
+
+        [Flags]
+        public enum RoomFlags
+        {
+            NONE = 0,
+            TIER1 = 1,
+            TIER2 = 2,
+            TIER3 = 4,
+        }
+
+        #endregion
+
         #region Constructor
 
-        public Room(int x, int y, int width, int height)
+        public Room(int x, int y, int width, int height, RoomFlags roomFlag = RoomFlags.NONE)
         {
             X = x;
             Y = y;
             Width = width;
             Height = height;
+            RoomFlag = roomFlag;
         }
 
         #endregion
@@ -23,6 +38,8 @@ namespace DungeonGenerator.Base
         public int Y { get; }
         public int Width { get; }
         public int Height { get; }
+
+        public RoomFlags RoomFlag { get; set; } = RoomFlags.NONE;
 
         public int Top { get { return Y; } }
         public int Bottom { get { return Y + Height - 1; } }
