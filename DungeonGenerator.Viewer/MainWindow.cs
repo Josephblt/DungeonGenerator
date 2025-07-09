@@ -1,7 +1,9 @@
 using DungeonGenerator.Base;
 using DungeonGenerator.Base.Creators;
+using DungeonGenerator.Serializer;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Windows.Forms;
 
 namespace DungeonGenerator.Viewer
@@ -20,11 +22,13 @@ namespace DungeonGenerator.Viewer
 
         #region Constants
 
-        public const int MARGIN = 12;
+        const string FILEPATH = "saved_dungeon.json";
 
         #endregion
 
         #region Private Fields
+
+        private Toolbox _toolbox;
 
         private Dungeon _dungeon;
 
@@ -37,12 +41,28 @@ namespace DungeonGenerator.Viewer
         private float _centerFactorX;
         private float _centerFactorY;
 
+        private string _stats;
+
+        private SolidBrush _tier1Brush;
+        private SolidBrush _tier2Brush;
+        private SolidBrush _tier3Brush;
+        private SolidBrush _pathBrush;
+        private SolidBrush _roomBrush;
+        private SolidBrush _deadEndBrush;
+        private Pen _wallsPen;
+
         #endregion
 
         #region Private Methods
 
         private void InitializeWindow()
         {
+            _toolbox = new Toolbox();
+            _toolbox.CreateCalled += new Toolbox.CreateCalledHandler(_toolbox_CreateCalled);
+            _toolbox.SaveCalled += new Toolbox.SaveCalledHandler(_toolbox_SaveCalled);
+            _toolbox.Show(this);
+            _toolbox.Focus();
+
             RefreshWindow();
         }
 
@@ -72,9 +92,42 @@ namespace DungeonGenerator.Viewer
             }
         }
 
-        private void Create()
+        private void Create(AlchromistCreator creator)
         {
-            _dungeon = AlchromistCreator.Create();
+            _dungeon = creator.Create();
+            _stats = creator.Stats;
+            Refresh();
+        }
+
+        private void Save()
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Title = "Save Dungeon";
+                dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+                dialog.DefaultExt = "json";
+                dialog.FileName = FILEPATH;
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filepath = dialog.FileName;
+                    bool overwrite = true;
+
+                    if (File.Exists(filepath))
+                    {
+                        var result = MessageBox.Show(
+                            $"The file \"{Path.GetFileName(filepath)}\" already exists.\nDo you want to overwrite it?",
+                            "Confirm Overwrite",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning
+                        );
+
+                        overwrite = result == DialogResult.Yes;
+                    }
+
+                    DungeonSerializer.SaveToFile(_dungeon, filepath, overwrite);
+                }
+            }
         }
 
         private void DrawCanvas(Graphics graphics)
@@ -114,33 +167,39 @@ namespace DungeonGenerator.Viewer
 
                     if (deadEnd)
                     {
-                        var brush = FindDeadEndBrush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_deadEndBrush == null)
+                            _deadEndBrush = FindDeadEndBrush(x, y);
+                        graphics.FillRectangle(_deadEndBrush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     } 
                     else if (tier1Room)
                     {
-                        var brush = FindTier1Brush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_tier1Brush == null)
+                            _tier1Brush = FindTier1Brush(x, y);
+                        graphics.FillRectangle(_tier1Brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     }
                     else if (tier2Room)
                     {
-                        var brush = FindTier2Brush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_tier2Brush == null)
+                            _tier2Brush = FindTier2Brush(x, y);
+                        graphics.FillRectangle(_tier2Brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     }
                     else if (tier3Room)
                     {
-                        var brush = FindTier3Brush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_tier3Brush == null)
+                            _tier3Brush = FindTier3Brush(x, y);
+                        graphics.FillRectangle(_tier3Brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     }
                     else if (room)
                     {
-                        var brush = FindRoomBrush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_roomBrush == null)
+                            _roomBrush = FindRoomBrush(x, y);
+                        graphics.FillRectangle(_roomBrush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     }
                     else if (path)
                     {
-                        var brush = FindPathBrush(x, y);
-                        graphics.FillRectangle(brush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
+                        if (_pathBrush == null)
+                            _pathBrush = FindPathBrush(x, y);
+                        graphics.FillRectangle(_pathBrush, tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
                     }
                     else if (unused)
                         graphics.FillRectangle(new SolidBrush(Color.Gray), tlPosition.X, tlPosition.Y, _cellSize, _cellSize);
@@ -153,20 +212,33 @@ namespace DungeonGenerator.Viewer
                                                _cellSize - (_cellSize / 3f),
                                                _cellSize - (_cellSize / 3f));
 
-                    var pen = FindWallsPen(x, y);
+                    
+                    if (_wallsPen == null)
+                        _wallsPen = FindWallsPen(x, y);
                     if (topWall)
-                        graphics.DrawLine(pen, tlPosition, trPosition);
+                        graphics.DrawLine(_wallsPen, tlPosition, trPosition);
 
                     if (bottomWall)
-                        graphics.DrawLine(pen, blPosition, brPosition);
+                        graphics.DrawLine(_wallsPen, blPosition, brPosition);
 
                     if (leftWall)
-                        graphics.DrawLine(pen, tlPosition, blPosition);
+                        graphics.DrawLine(_wallsPen, tlPosition, blPosition);
 
                     if (rightWall)
-                        graphics.DrawLine(pen, trPosition, brPosition);
-                    
+                        graphics.DrawLine(_wallsPen, trPosition, brPosition);
                 }
+        }
+
+        private void DrawStats(Graphics graphics)
+        {
+            if (_dungeon == null) return;
+            var string_size = graphics.MeasureString(_stats, new Font("Arial", 10));
+            var x = _mazeOutterRectangle.Right - string_size.Width - 25;
+            var y = _mazeOutterRectangle.Bottom - string_size.Height - 25;
+
+            graphics.DrawRectangle(_wallsPen, x - 11, y - 10, string_size.Width + 21, string_size.Height + 20);
+            graphics.FillRectangle(FindStatsFillColor(), x - 10, y - 10, string_size.Width + 20, string_size.Height + 20);
+            graphics.DrawString(_stats, new Font("Arial", 10), _roomBrush, new PointF(x, y));
         }
 
         private SolidBrush FindTier1Brush(int x, int y)
@@ -271,42 +343,61 @@ namespace DungeonGenerator.Viewer
             return new SolidBrush(Color.SlateGray);
         }
 
-        private Pen FindWallsPen(int x, int y) 
+        private Pen FindWallsPen(int x, int y)
         {
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.RED))
-                return new Pen(Color.FromArgb(16, 0, 0));
+                return new Pen(Color.FromArgb(32, 0, 0));
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.CYAN))
-                return new Pen(Color.FromArgb(0, 16, 16));
+                return new Pen(Color.FromArgb(0, 32, 32));
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.GREEN))
-                return new Pen(Color.FromArgb(0, 16, 0));
+                return new Pen(Color.FromArgb(0, 32, 0));
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.MAGENTA))
-                return new Pen(Color.FromArgb(16, 0, 16));
+                return new Pen(Color.FromArgb(32, 0, 32));
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.BLUE))
-                return new Pen(Color.FromArgb(0, 0, 16));
+                return new Pen(Color.FromArgb(0, 0, 32));
             if (_dungeon[x, y].HasFlag(Dungeon.DungeonFlags.YELLOW))
-                return new Pen(Color.FromArgb(16, 16, 0));
+                return new Pen(Color.FromArgb(32, 32, 0));
             return Pens.Black;
+        }
+
+        private SolidBrush FindStatsFillColor()
+        {
+            var invertedColor = Color.FromArgb(64, 255 - _roomBrush.Color.R, 255 - _roomBrush.Color.G, 255 - _roomBrush.Color.B);
+            return new SolidBrush(invertedColor);
         }
 
         #endregion
 
         #region Signed Events Methods
 
-        private void MainWindow_Load(object sender, System.EventArgs e)
-        {
-            Create();
-        }
-
         private void MainWindow_Paint(object sender, PaintEventArgs e)
         {
             RefreshWindow();
             DrawCanvas(e.Graphics);
             DrawMaze(e.Graphics);
+            DrawStats(e.Graphics);
+            _tier1Brush = null;
+            _tier2Brush = null;
+            _tier3Brush = null;
+            _pathBrush = null;
+            _roomBrush = null;
+            _deadEndBrush = null;
+            _wallsPen = null;
         }
 
         private void MainWindow_Resize(object sender, System.EventArgs e)
         {
             Refresh();
+        }
+
+        private void _toolbox_CreateCalled(AlchromistCreator creator)
+        {
+            Create(creator);
+        }
+
+        private void _toolbox_SaveCalled()
+        {
+            Save();
         }
 
         #endregion
