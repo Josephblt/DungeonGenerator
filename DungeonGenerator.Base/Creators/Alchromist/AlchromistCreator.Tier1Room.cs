@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DungeonGenerator.Base.Creators
+﻿namespace DungeonGenerator.Base.Creators
 {
     public partial class AlchromistCreator
     {
@@ -23,8 +20,8 @@ namespace DungeonGenerator.Base.Creators
                     connection_cell2 = new CellLocation(room.X + (Tier1RoomSize / 2), room.Y + Tier1RoomSize);
                     break;
                 case Chambers.MAGENTA:
-                    connection_cell1 = new CellLocation(Size - 5 - 1, room.Y + Tier1RoomSize - 1);
-                    connection_cell2 = new CellLocation(Size - 5 - 1, room.Y + Tier1RoomSize);
+                    connection_cell1 = new CellLocation(Size - TiersOutterMargin - 1, room.Y + Tier1RoomSize - 1);
+                    connection_cell2 = new CellLocation(Size - TiersOutterMargin - 1, room.Y + Tier1RoomSize);
                     break;
                 case Chambers.GREEN:
                     connection_cell1 = new CellLocation(room.X, room.Y);
@@ -35,8 +32,8 @@ namespace DungeonGenerator.Base.Creators
                     connection_cell2 = new CellLocation(room.X, room.Y + Tier1RoomSize);
                     break;
                 case Chambers.BLUE:
-                    connection_cell1 = new CellLocation(Size - 5 - 1, room.Y);
-                    connection_cell2 = new CellLocation(Size - 5 - 1, room.Y - 1);
+                    connection_cell1 = new CellLocation(Size - TiersOutterMargin - 1, room.Y);
+                    connection_cell2 = new CellLocation(Size - TiersOutterMargin - 1, room.Y - 1);
                     break;
             }
 
@@ -49,49 +46,49 @@ namespace DungeonGenerator.Base.Creators
         private Room CreateTier1Room(Dungeon dungeon)
         {
             var x = -1;
-            var y = -1;
+            var y = -1;            
 
             switch (Chamber)
             {
                 case Chambers.CYAN:
                     x = (Size / 2) - (Tier1RoomSize / 2);
-                    y = 5;
+                    y = TiersOutterMargin;
                     break;
                 case Chambers.RED:
                     x = (Size / 2) - (Tier1RoomSize / 2);
-                    y = Size - Tier1RoomSize - 5;
+                    y = Size - Tier1RoomSize - TiersOutterMargin;
                     break;
                 case Chambers.MAGENTA:
-                    x = Size - Tier1RoomSize - 5;
-                    y = Size - Tier1RoomSize - 5;
+                    x = Size - Tier1RoomSize - TiersOutterMargin;
+                    y = Size - Tier1RoomSize - TiersOutterMargin;
                     break;
                 case Chambers.GREEN:
-                    x = 5;
-                    y = 5;
+                    x = TiersOutterMargin;
+                    y = TiersOutterMargin;
                     break;
                 case Chambers.YELLOW:
-                    x = 5;
-                    y = Size - Tier1RoomSize - 5; ;
+                    x = TiersOutterMargin;
+                    y = Size - Tier1RoomSize - TiersOutterMargin;
                     break;
                 case Chambers.BLUE:
-                    x = Size - Tier1RoomSize - 5;
-                    y = 5;
+                    x = Size - Tier1RoomSize - TiersOutterMargin;
+                    y = TiersOutterMargin;
                     break;
             }
 
-            return new Room(x, y, Tier1RoomSize, Tier1RoomSize);
+            return new Room(x, y, Tier1RoomSize, Tier1RoomSize, Room.RoomFlags.TIER1);
         }
 
         private bool IsInTier1MazeStrip(int x, int y, Room room)
         {
             bool inOuter = (
-                x >= room.Left + Tier1MazeMargin && x <= room.Right - Tier1MazeMargin &&
-                y >= room.Top + Tier1MazeMargin && y <= room.Bottom - Tier1MazeMargin
+                x >= room.Left + TiersInnerMargin && x <= room.Right - TiersInnerMargin &&
+                y >= room.Top + TiersInnerMargin && y <= room.Bottom - TiersInnerMargin
             );
 
             bool inInner = (
-                x >= room.Left + Tier1MazeMargin + Tier1MazeSize && x <= room.Right - Tier1MazeMargin - Tier1MazeSize &&
-                y >= room.Top + Tier1MazeMargin + Tier1MazeSize && y <= room.Bottom - Tier1MazeMargin - Tier1MazeSize
+                x >= room.Left + TiersInnerMargin + Tier1MazeSize && x <= room.Right - TiersInnerMargin - Tier1MazeSize &&
+                y >= room.Top + TiersInnerMargin + Tier1MazeSize && y <= room.Bottom - TiersInnerMargin - Tier1MazeSize
             );
 
             return inOuter && !inInner;
