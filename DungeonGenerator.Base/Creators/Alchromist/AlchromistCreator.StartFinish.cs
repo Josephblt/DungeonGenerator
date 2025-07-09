@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DungeonGenerator.Base.Creators
+﻿namespace DungeonGenerator.Base.Creators
 {
     public partial class AlchromistCreator
     {
