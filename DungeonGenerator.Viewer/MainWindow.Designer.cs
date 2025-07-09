@@ -40,7 +40,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Dungeon Generator";
-            this.Load += new System.EventHandler(this.MainWindow_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainWindow_Paint);
             this.Resize += new System.EventHandler(this.MainWindow_Resize);
             this.ResumeLayout(false);
@@ -48,7 +47,6 @@
         }
 
         #endregion
-
     }
 }
 
