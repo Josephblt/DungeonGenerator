@@ -52,43 +52,43 @@
             {
                 case Chambers.CYAN:
                     x = (Size / 2) - (Tier3RoomSize / 2);
-                    y = Size - Tier3RoomSize - 5;
+                    y = Size - Tier3RoomSize - TiersOutterMargin;
                     break;
                 case Chambers.RED:
                     x = (Size / 2) - (Tier3RoomSize / 2);
-                    y = 5;
+                    y = TiersOutterMargin;
                     break;
                 case Chambers.MAGENTA:
-                    x = 5;
-                    y = 5;
+                    x = TiersOutterMargin;
+                    y = TiersOutterMargin;
                     break;
                 case Chambers.GREEN:
-                    x = Size - Tier3RoomSize - 5;
-                    y = Size - Tier3RoomSize - 5;
+                    x = Size - Tier3RoomSize - TiersOutterMargin;
+                    y = Size - Tier3RoomSize - TiersOutterMargin;
                     break;
                 case Chambers.YELLOW:
-                    x = Size - Tier3RoomSize - 5;
-                    y = 5;
+                    x = Size - Tier3RoomSize - TiersOutterMargin;
+                    y = TiersOutterMargin;
                     break;
                 case Chambers.BLUE:
-                    x = 5;
-                    y = Size - Tier3RoomSize - 5;
+                    x = TiersOutterMargin;
+                    y = Size - Tier3RoomSize - TiersOutterMargin;
                     break;
             }
 
-            return new Room(x, y, Tier3RoomSize, Tier3RoomSize);
+            return new Room(x, y, Tier3RoomSize, Tier3RoomSize, Room.RoomFlags.TIER3);
         }
 
         private bool IsInTier3MazeStrip(int x, int y, Room room)
         {
             bool inOuter = (
-                x >= room.Left + Tier3MazeMargin && x <= room.Right - Tier3MazeMargin &&
-                y >= room.Top + Tier3MazeMargin && y <= room.Bottom - Tier3MazeMargin
+                x >= room.Left + TiersInnerMargin && x <= room.Right - TiersInnerMargin &&
+                y >= room.Top + TiersInnerMargin && y <= room.Bottom - TiersInnerMargin
             );
 
             bool inInner = (
-                x >= room.Left + Tier3MazeMargin + Tier3MazeSize && x <= room.Right - Tier3MazeMargin - Tier3MazeSize &&
-                y >= room.Top + Tier3MazeMargin + Tier3MazeSize && y <= room.Bottom - Tier3MazeMargin - Tier3MazeSize
+                x >= room.Left + TiersInnerMargin + Tier3MazeSize && x <= room.Right - TiersInnerMargin - Tier3MazeSize &&
+                y >= room.Top + TiersInnerMargin + Tier3MazeSize && y <= room.Bottom - TiersInnerMargin - Tier3MazeSize
             );
 
             return inOuter && !inInner;
